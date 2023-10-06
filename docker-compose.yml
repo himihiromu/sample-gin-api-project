@@ -1,0 +1,48 @@
+version: '3'
+services:
+  db:
+    image: mysql:8.0
+    env_file:
+      - example.env
+    volumes:
+      - db-store:/var/lib/mysql
+    command: mysqld --character-set-server=utf8 --collation-server=utf8_unicode_ci
+    ports:
+      - "3306:3306"
+
+  nginx:
+    build:
+      context: ./nginx
+    ports: 
+      - "8000:8000"
+    volumes:
+      - ./balance_of_payments/src/static:/usr/share/nginx/html/static
+    depends_on:
+      - api
+
+  api:
+    build:
+      context: ./api
+    env_file:
+      - example.env
+    volumes:
+      - ./api:/code
+    ports:
+      - "8001:8001"
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    environment:
+      - PMA_ARBITRARY=1
+      - PMA_HOST=db
+      - PMA_USER=root
+      - PMA_PASSWORD=root
+    links:
+      - db
+    ports:
+      - "8080:80"
+    volumes:
+      - "./phpmyadmin/sessions:/sessions"
+
+volumes:
+  db-store:
