@@ -23,6 +23,7 @@ services:
   api:
     build:
       context: ./api
+      dockerfile: ../api/Dockerfile
     env_file:
       - example.env
     volumes:
